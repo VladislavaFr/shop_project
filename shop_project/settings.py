@@ -1,17 +1,10 @@
 from pathlib import Path
 
-# Базовая директория проекта
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Секретный ключ (в продакшене нужно скрывать)
 SECRET_KEY = 'django-insecure-CHANGE-ME'
-
-# Режим отладки (в продакшене выключается)
 DEBUG = True
-
-# Разрешённые хосты
 ALLOWED_HOSTS = []
-
 
 # Подключаемые приложения
 INSTALLED_APPS = [
@@ -22,12 +15,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Наше приложение каталога
+    # Наши приложения
     'catalog',
+    'users',
 ]
 
+AUTH_USER_MODEL = 'users.CustomUser'
 
-# Промежуточные слои обработки запросов
+# Почтовые настройки (для теста консоль)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@shop.com'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -38,18 +36,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
-# Корневой файл маршрутизации
 ROOT_URLCONF = 'shop_project.urls'
 
-
-# Настройки шаблонов
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            BASE_DIR / 'templates',  # Папка с шаблонами
-        ],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -62,12 +54,8 @@ TEMPLATES = [
     },
 ]
 
-
-# WSGI-приложение
 WSGI_APPLICATION = 'shop_project.wsgi.application'
 
-
-# Настройки базы данных
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -75,8 +63,6 @@ DATABASES = {
     }
 }
 
-
-# Валидаторы паролей
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -84,27 +70,20 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
-# Язык и часовой пояс
 LANGUAGE_CODE = 'ru-ru'
-
 TIME_ZONE = 'Europe/Moscow'
-
 USE_I18N = True
 USE_TZ = True
 
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# Статические файлы (CSS, JS, картинки)
-STATIC_URL = 'static/'
-
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
-
-# Медиа-файлы (загружаемые пользователями)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-
-# Тип первичного ключа по умолчанию
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Настройки авторизации
+LOGIN_URL = '/users/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
