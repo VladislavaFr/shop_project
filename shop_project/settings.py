@@ -6,7 +6,6 @@ SECRET_KEY = 'django-insecure-CHANGE-ME'
 DEBUG = True
 ALLOWED_HOSTS = []
 
-# Подключаемые приложения
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -15,14 +14,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Наши приложения
     'catalog',
     'users',
 ]
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
-# Почтовые настройки (для теста консоль)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'noreply@shop.com'
 
@@ -83,7 +80,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Настройки авторизации
 LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
