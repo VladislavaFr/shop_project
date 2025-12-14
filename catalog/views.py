@@ -1,19 +1,31 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import (
+    ListView, CreateView, UpdateView, DeleteView, DetailView
+)
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
-from .models import Product
+from .models import Product, Category
+from .services import get_products_by_category
 
-# Список всех продуктов
+
 class ProductListView(ListView):
     model = Product
     template_name = "catalog/product_list.html"
     context_object_name = "products"
 
-# Создание продукта
+
+@method_decorator(cache_page(60 * 5), name="dispatch")
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = "catalog/product_detail.html"
+    context_object_name = "product"
+
+
 class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
-    fields = ["name", "description", "price", "image"]
+    fields = ["name", "description", "price", "image", "category"]
     template_name = "catalog/product_form.html"
     success_url = reverse_lazy("product_list")
 
@@ -22,29 +34,39 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
         form.instance.status = "draft"
         return super().form_valid(form)
 
-# Миксин для проверки прав владельца или модератора
+
 class OwnerOrModeratorMixin(UserPassesTestMixin):
     def test_func(self):
         product = self.get_object()
         user = self.request.user
 
-        if product.owner == user:
-            return True
+        return (
+            product.owner == user or
+            user.groups.filter(name="Модератор продуктов").exists()
+        )
 
-        if user.groups.filter(name="Модератор продуктов").exists():
-            return True
 
-        return False
-
-# Редактирование продукта
 class ProductUpdateView(LoginRequiredMixin, OwnerOrModeratorMixin, UpdateView):
     model = Product
-    fields = ["name", "description", "price", "image", "status"]
+    fields = ["name", "description", "price", "image", "status", "category"]
     template_name = "catalog/product_form.html"
     success_url = reverse_lazy("product_list")
 
-# Удаление продукта
+
 class ProductDeleteView(LoginRequiredMixin, OwnerOrModeratorMixin, DeleteView):
     model = Product
     template_name = "catalog/product_confirm_delete.html"
     success_url = reverse_lazy("product_list")
+
+
+class CategoryProductListView(ListView):
+    template_name = "catalog/category_products.html"
+    context_object_name = "products"
+
+    def get_queryset(self):
+        return get_products_by_category(self.kwargs["category_id"])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["category"] = Category.objects.get(pk=self.kwargs["category_id"])
+        return context

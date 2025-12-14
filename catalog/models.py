@@ -1,6 +1,14 @@
 from django.conf import settings
 from django.db import models
 
+
+class Category(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     STATUS_CHOICES = [
         ("draft", "Черновик"),
@@ -12,11 +20,17 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(upload_to="products/", blank=True, null=True)
 
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+        related_name="products"
+    )
+
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="products",
-        null=True,  # для существующих записей в БД
+        null=True,
         blank=True
     )
 
