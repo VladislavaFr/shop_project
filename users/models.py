@@ -2,14 +2,25 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-class CustomUser(AbstractUser):
-    email = models.EmailField(unique=True)
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
-    phone = models.CharField(max_length=20, blank=True, null=True)
-    country = models.CharField(max_length=100, blank=True, null=True)
+def user_avatar_path(instance, filename):
+    # avatars/user_5/photo.png
+    return f"avatars/user_{instance.id}/{filename}"
 
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+
+class CustomUser(AbstractUser):
+    avatar = models.ImageField(
+        upload_to=user_avatar_path,
+        blank=True,
+        null=True
+    )
+    phone = models.CharField(
+        max_length=20,
+        blank=True
+    )
+    country = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
     def __str__(self):
-        return self.email
+        return self.username
